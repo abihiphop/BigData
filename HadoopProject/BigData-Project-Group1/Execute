@@ -1,0 +1,70 @@
+#!/bin/bash
+
+if [ $# -ne 1 ] 
+then
+ echo "Please input your parameter(Java Package Name)";
+ exit 1; 
+fi
+
+PACKAGE=$1
+CLASS=""
+
+if [ $PACKAGE = "Part_1A" ] 
+then
+CLASS="WordCount"
+ elif [ $PACKAGE = "Part_1B" ] 
+then
+  CLASS="InMapperWordCount"
+
+elif [ $PACKAGE = "Part_1C" ] 
+then
+  CLASS="BasicAverage"
+
+elif [ $PACKAGE = "Part_1D" ] 
+then
+  CLASS="InMapperAverage"
+
+elif [ $PACKAGE = "Part_2" ] 
+then
+  CLASS="PairsRelativeFrequency"
+
+elif [ $PACKAGE = "Part_3" ] 
+then
+  CLASS="StripeRelativeFrequency"
+
+elif [ $PACKAGE = "Part_4" ] 
+then
+  CLASS="HybridRelativeFrequency"
+else
+echo "Class Not Available";
+exit 1;
+fi
+
+
+if $(hadoop fs -test -d /input/${PACKAGE})
+then
+	echo "Replacing Directory /input/$PACKAGE"
+	hdfs dfs -copyFromLocal -f Desktop/ProjectInputFiles/${PACKAGE}/Input/*.txt /input/${PACKAGE}
+else
+	echo "Creating Directory /input/$PACKAGE"
+	hadoop fs -mkdir /input/$PACKAGE
+	hdfs dfs -copyFromLocal -f Desktop/ProjectInputFiles/${PACKAGE}/Input/*.txt /input/${PACKAGE}
+fi
+
+echo "=============== Printing Input File... ===================="
+hadoop fs -cat /input/$PACKAGE/*
+
+echo "=============== Map Reduce Running... ===================="
+if $(hadoop fs -test -d /output/$PACKAGE)
+then
+	echo "Replacing Directory /output/$PACKAGE"
+	hadoop fs -rm -r /output/$PACKAGE
+	hadoop jar Desktop/ProjectJarFiles/BigDataJarFiles.jar ${PACKAGE}.${CLASS} /input/${PACKAGE}/*.txt /output/$PACKAGE
+else
+	echo "Creating Directory /output/$PACKAGE"
+	hadoop jar Desktop/ProjectJarFiles/BigDataJarFiles.jar ${PACKAGE}.${CLASS} /input/${PACKAGE}/*.txt /output/$PACKAGE
+
+fi
+
+echo "=============== Printing Output File... ===================="
+hadoop fs -cat /output/$PACKAGE/*

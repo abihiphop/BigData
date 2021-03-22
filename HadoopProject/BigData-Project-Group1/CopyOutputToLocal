@@ -1,0 +1,22 @@
+#!/bin/bash
+if [ $# -ne 1 ] 
+then
+ echo "Please input your parameter(Java Package Name)";
+ exit 1; 
+fi
+
+PACKAGE=$1
+
+echo "=============== Copying Output to Local Directory...===================="
+if [ -d Desktop/ProjectInputFiles/$PACKAGE/Output ]   
+then
+        rm -f Desktop/ProjectInputFiles/$PACKAGE/Output/part*
+        hadoop fs -copyToLocal /output/$PACKAGE/part-r-* Desktop/ProjectInputFiles/${PACKAGE}/Output/
+	echo "Success, output file copied";
+	echo "You can find it in Desktop/ProjectInputFiles/${PACKAGE}/Output/";
+	echo " ";
+else
+	echo "Creating Directory /output/$PACKAGE"
+        hadoop fs -copyToLocal /output/$PACKAGE/part-r-* Desktop/ProjectInputFiles/${PACKAGE}/Output/
+
+fi
